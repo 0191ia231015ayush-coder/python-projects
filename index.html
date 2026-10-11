@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ayush Malviya - Python Projects</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#22c55e; --danger:#f87171; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+  header { text-align:center; padding:32px 16px 8px; }
+  header h1 { margin:0; font-size:1.8rem; }
+  header p { margin:6px 0 0; color:var(--muted); }
+  nav { display:flex; justify-content:center; gap:8px; padding:16px; }
+  nav button { background:var(--card); color:var(--text); border:1px solid #334155; padding:10px 18px; border-radius:999px; cursor:pointer; font-size:1rem; }
+  nav button.active { background:var(--accent); color:#0f172a; border-color:var(--accent); font-weight:600; }
+  main { max-width:720px; margin:0 auto; padding:0 16px 40px; }
+  section { display:none; background:var(--card); border-radius:16px; padding:20px; }
+  section.active { display:block; }
+  h2 { margin-top:0; }
+  .desc { color:var(--muted); margin-top:-8px; }
+  #chat { height:320px; overflow-y:auto; background:#0f172a; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+  .msg { max-width:80%; padding:8px 12px; border-radius:12px; word-wrap:break-word; }
+  .user { align-self:flex-end; background:var(--accent); color:#0f172a; }
+  .bot { align-self:flex-start; background:#334155; }
+  .row { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  input, select { flex:1; min-width:120px; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:var(--text); font-size:1rem; }
+  .btn { background:var(--accent2); color:#0f172a; border:none; padding:10px 18px; border-radius:8px; font-weight:600; cursor:pointer; font-size:1rem; }
+  .btn.danger { background:var(--danger); }
+  table { width:100%; border-collapse:collapse; margin-top:16px; font-size:.95rem; }
+  th, td { text-align:left; padding:8px; border-bottom:1px solid #334155; }
+  th { color:var(--muted); font-weight:500; }
+  td.amt, th.amt { text-align:right; }
+  .total { margin-top:16px; font-size:1.2rem; font-weight:700; }
+  .cats { color:var(--muted); margin-top:4px; }
+  .err { color:var(--danger); margin-top:8px; min-height:1.2em; }
+  footer { text-align:center; color:var(--muted); padding:16px; font-size:.9rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Ayush Malviya</h1>
+  <p>B.Tech Student | Python, OOP, DSA | Web versions of my Python projects</p>
+</header>
+
+<nav>
+  <button id="tab1" class="active">AI Study Buddy</button>
+  <button id="tab2">Expense Tracker</button>
+</nav>
+
+<main>
+  <!-- Project 1 -->
+  <section id="p1" class="active">
+    <h2>AI Study Buddy</h2>
+    <p class="desc">Rule-based chat assistant. Keyword matching, no external AI. Try: python, oop, dsa, sorting, exam, help</p>
+    <div id="chat"></div>
+    <div class="row">
+      <input id="chatInput" type="text" placeholder="Ask a study question..." maxlength="200" autocomplete="off">
+      <button class="btn" id="sendBtn">Send</button>
+    </div>
+  </section>
+
+  <!-- Project 2 -->
+  <section id="p2">
+    <h2>Expense Tracker</h2>
+    <p class="desc">Add expenses, view them, and see total spending. Data stays in your browser only.</p>
+    <div class="row">
+      <input id="eDate" type="date">
+      <input id="eCat" type="text" placeholder="Category (Food, Travel...)" maxlength="30">
+    </div>
+    <div class="row">
+      <input id="eDesc" type="text" placeholder="Description" maxlength="60">
+      <input id="eAmt" type="number" placeholder="Amount" min="0.01" step="0.01">
+      <button class="btn" id="addBtn">Add</button>
+    </div>
+    <div class="err" id="eErr"></div>
+    <table>
+      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th class="amt">Amount</th><th></th></tr></thead>
+      <tbody id="eBody"></tbody>
+    </table>
+    <div class="total" id="eTotal"></div>
+    <div class="cats" id="eCats"></div>
+    <div class="row"><button class="btn danger" id="clearBtn">Clear all</button></div>
+  </section>
+</main>
+
+<footer>Built with HTML, CSS and JavaScript by Ayush Malviya</footer>
+
+<script>
+// ---------- Tabs ----------
+const tabs = { tab1: 'p1', tab2: 'p2' };
+Object.keys(tabs).forEach(function (id) {
+  document.getElementById(id).addEventListener('click', function () {
+    Object.keys(tabs).forEach(function (t) {
+      document.getElementById(t).classList.toggle('active', t === id);
+      document.getElementById(tabs[t]).classList.toggle('active', t === id);
+    });
+  });
+});
+
+// ---------- Project 1: AI Study Buddy ----------
+const RESPONSES = {
+  python: "Python is a great first language! Practice daily: variables, loops, functions, then OOP.",
+  oop: "OOP has 4 pillars: Encapsulation, Abstraction, Inheritance, Polymorphism.",
+  dsa: "Start with arrays, strings, linked lists, stacks, queues, then trees and graphs.",
+  array: "Arrays store elements in contiguous memory. Access is O(1), search is O(n).",
+  sorting: "Learn bubble, selection, insertion, merge and quick sort. Merge sort is O(n log n).",
+  recursion: "Recursion = a function calling itself with a base case to stop. Try factorial first!",
+  study: "Try the Pomodoro method: 25 minutes focus, 5 minutes break.",
+  exam: "Make a timetable, revise key topics, and solve previous year papers.",
+  motivate: "Small progress every day beats big effort once in a while. Keep going!",
+  html: "HTML is the structure of a web page, while CSS styles it.",
+  css: "CSS controls colors, layout and fonts of a web page.",
+  help: "Ask me about: python, oop, dsa, array, sorting, recursion, study, exam, html, css."
+};
+const chat = document.getElementById('chat');
+const chatInput = document.getElementById('chatInput');
+
+function addMsg(text, who) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.textContent = text; // textContent prevents HTML injection
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+function reply(text) {
+  const t = text.toLowerCase();
+  if (['bye', 'exit', 'quit'].includes(t.trim())) return "Goodbye! Keep learning.";
+  for (const key in RESPONSES) { if (t.includes(key)) return RESPONSES[key]; }
+  return "Sorry, I don't know that yet. Type 'help' to see what I can answer.";
+}
+function send() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  addMsg(text, 'user');
+  addMsg(reply(text), 'bot');
+  chatInput.value = '';
+}
+document.getElementById('sendBtn').addEventListener('click', send);
+chatInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+addMsg(greeting() + "! I'm AI Study Buddy. Type 'help' to see what I know.", 'bot');
+
+// ---------- Project 2: Expense Tracker ----------
+let expenses = [];
+try { expenses = JSON.parse(localStorage.getItem('expenses') || '[]'); } catch (e) { expenses = []; }
+function save() { try { localStorage.setItem('expenses', JSON.stringify(expenses)); } catch (e) {} }
+
+document.getElementById('eDate').value = new Date().toISOString().slice(0, 10);
+
+function cell(text, cls) {
+  const td = document.createElement('td');
+  td.textContent = text;
+  if (cls) td.className = cls;
+  return td;
+}
+function render() {
+  const body = document.getElementById('eBody');
+  body.innerHTML = '';
+  const totals = {};
+  let sum = 0;
+  expenses.forEach(function (e, i) {
+    const tr = document.createElement('tr');
+    tr.appendChild(cell(e.date));
+    tr.appendChild(cell(e.category));
+    tr.appendChild(cell(e.description));
+    tr.appendChild(cell(e.amount.toFixed(2), 'amt'));
+    const td = document.createElement('td');
+    const del = document.createElement('button');
+    del.textContent = 'x';
+    del.className = 'btn danger';
+    del.style.padding = '2px 10px';
+    del.addEventListener('click', function () { expenses.splice(i, 1); save(); render(); });
+    td.appendChild(del);
+    tr.appendChild(td);
+    body.appendChild(tr);
+    totals[e.category] = (totals[e.category] || 0) + e.amount;
+    sum += e.amount;
+  });
+  document.getElementById('eTotal').textContent = expenses.length ? 'Total spending: ' + sum.toFixed(2) : 'No expenses recorded yet.';
+  document.getElementById('eCats').textContent = Object.keys(totals).map(function (c) { return c + ': ' + totals[c].toFixed(2); }).join('  |  ');
+}
+document.getElementById('addBtn').addEventListener('click', function () {
+  const err = document.getElementById('eErr');
+  const date = document.getElementById('eDate').value;
+  const category = document.getElementById('eCat').value.trim() || 'General';
+  const description = document.getElementById('eDesc').value.trim();
+  const amount = parseFloat(document.getElementById('eAmt').value);
+  if (!date) { err.textContent = 'Please choose a date.'; return; }
+  if (!isFinite(amount) || amount <= 0) { err.textContent = 'Enter a valid positive amount.'; return; }
+  err.textContent = '';
+  expenses.push({ date: date, category: category, description: description, amount: amount });
+  save(); render();
+  document.getElementById('eDesc').value = '';
+  document.getElementById('eAmt').value = '';
+});
+document.getElementById('clearBtn').addEventListener('click', function () {
+  if (confirm('Delete all expenses?')) { expenses = []; save(); render(); }
+});
+render();
+</script>
+</body>
+</html>
